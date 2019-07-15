@@ -3,8 +3,8 @@ ec2 = boto3.client("ec2")
 
 #create vpc
 vpc = ec2.create_vpc(CidrBlock='10.0.0.0/16',DryRun=False)
-vpc.create_tags(Tags=[{"Key":"Name","Value":"diyblockchianVPC"}])
-vpc.wait_until_available()
+ec2.create_tags(Resources=[vpc["Vpc"]["VpcId"]],Tags=[{"Key":"Name","Value":"diyblockchianVPC"}])
+#vpc.wait_until_available()
 print(vpc["Vpc"]["VpcId"], " is available. ")
 vpc_id=vpc["Vpc"]["VpcId"]
 
@@ -24,19 +24,19 @@ ec2.create_tags(Resources=[subnet3["Subnet"]["SubnetId"]],Tags=[{'Key':'Name','V
 
 #create internet Gateway
 ig=ec2.create_internet_gateway()
-vpc.attach_internet_gateway(InternetGatewayId=ig["InternetGateway"]["InternetGatewayId"])
+ec2.attach_internet_gateway(VpcId=vpc_id,InternetGatewayId=ig["InternetGateway"]["InternetGatewayId"])
 print("Internet gateway created and attached to vpc.")
 
 #creating route table
 rt=vpc.create_route_table()
-route=rt.create_route(DestinationCidrBlock='0.0.0.0/0',GatewayId=ig["InternetGateway"]["InternetGatewayId"])
+ec2.create_route(RouteTableId=rt["RouteTable"]["RouteTableId"],DestinationCidrBlock='0.0.0.0/0',GatewayId=ig["InternetGateway"]["InternetGatewayId"])
 print("Route table created and route added.")
 
-rt.associate_with_subnet(SubnetId=subnet1["Subnet"]["SubnetId"])
+ec2.associate_route_table(RouteTableId=rt["RouteTable"]["RouteTableId"],SubnetId=subnet1["Subnet"]["SubnetId"])
 
 #create securtiy group
 sg=ec2.create_security_group(GroupName='public_sg',Description='public_security_group',VpcId=vpc_id)
-sg.authorize_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=443,ToPort=443)
-sg.authorize_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=22,ToPort=22)
-sg.authorize_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=80,ToPort=80)
+ec2.authorize_security_group_ingress(GroupId=sg["GroupId"],IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=443,ToPort=443)
+ec2.authorize_security_group_ingress(GroupId=sg["GroupId"],IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=22,ToPort=22)
+ec2.authorize_security_group_ingress(GroupId=sg["GroupId"],IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=80,ToPort=80)
 
