@@ -36,6 +36,7 @@ rt.associate_with_subnet(SubnetId=subnet1["Subnet"]["SubnetId"])
 
 #create securtiy group
 sg=ec2.create_security_group(GroupName='public_sg',Description='public_security_group',VpcId=vpc_id)
+sg.authorize_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=443,ToPort=443)
 sg.authorize_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=22,ToPort=22)
 sg.authorize_ingress(IpProtocol="tcp",CidrIp="0.0.0.0/0",FromPort=80,ToPort=80)
 
