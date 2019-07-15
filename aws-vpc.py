@@ -1,8 +1,8 @@
 import boto3
-ec2 = boto3.resources("ec2")
+ec2 = boto3.client("ec2")
 
 #create vpc
-vpc = ec2.create_vpc(CidrBlock='10.0.0.0/16')
+vpc = ec2.create_vpc(CidrBlock='10.0.0.0/16',DryRun=False)
 vpc.create_tags(Tags=[{"Key":"Name","Value":"diyblockchianVPC"}])
 vpc.wait_until_available()
 print(vpc["Vpc"]["VpcId"], " is available. ")
